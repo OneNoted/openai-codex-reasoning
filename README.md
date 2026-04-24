@@ -21,6 +21,18 @@ This package is pinned to a fixed fork tag instead of tracking a branch:
 The fork tag is expected to point at the rebased reasoning-trace change on top
 of the upstream release tag.
 
+## Release flow
+
+- `validate.yml` checks packaging metadata on push and pull requests
+- `release.yml` polls the fork for the latest `aur-v*-reasoning.*` tag
+- when the fork tag changes:
+  `PKGBUILD` and `.SRCINFO` are updated,
+  the packaging repo is committed on `main`,
+  and the flat AUR snapshot is pushed to `master`
+
+The workflow assumes the fork repo already contains the rebased reasoning
+change and that the only packaging input is the published fork tag.
+
 ## Validation
 
 ```bash
