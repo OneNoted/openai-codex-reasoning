@@ -1,0 +1,5 @@
+codex/
+pkg/
+src/
+*.pkg.tar.*
+*.src.tar.*
