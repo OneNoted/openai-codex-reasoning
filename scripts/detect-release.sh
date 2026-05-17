@@ -47,12 +47,13 @@ if [[ ! "$upstream_tag" =~ ^rust-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
   exit 1
 fi
 
+pkgver=${BASH_REMATCH[1]}
+
 if [[ -n "$pkgrel_override" && ! "$pkgrel_override" =~ ^[1-9][0-9]*$ ]]; then
   echo "unexpected pkgrel override: $pkgrel_override" >&2
   exit 1
 fi
 
-pkgver=${BASH_REMATCH[1]}
 upstream_commit=$(resolve_upstream_commit "$upstream_tag")
 if [[ ! "$upstream_commit" =~ ^[0-9a-f]{40}$ ]]; then
   echo "failed to resolve upstream commit for $upstream_tag" >&2
