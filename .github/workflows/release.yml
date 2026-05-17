@@ -6,12 +6,12 @@ on:
   workflow_dispatch:
     inputs:
       force_release:
-        description: Force a release even if the fork tag has not changed
+        description: Force a release even if the upstream tag has not changed
         required: false
         default: false
         type: boolean
-      fork_tag:
-        description: Override the fork tag to package
+      upstream_tag:
+        description: Override the upstream rust-v tag to package
         required: false
         type: string
       pkgrel_override:
@@ -39,7 +39,7 @@ jobs:
         id: plan
         env:
           FORCE_RELEASE: ${{ github.event_name == 'workflow_dispatch' && inputs.force_release || 'false' }}
-          FORK_TAG_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.fork_tag || '' }}
+          UPSTREAM_TAG_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.upstream_tag || '' }}
           PKGREL_OVERRIDE: ${{ github.event_name == 'workflow_dispatch' && inputs.pkgrel_override || '' }}
         run: ./scripts/detect-release.sh >> "$GITHUB_OUTPUT"
 
@@ -48,7 +48,7 @@ jobs:
           printf 'should_release=%s\n' '${{ steps.plan.outputs.should_release }}'
           printf 'pkgver=%s\n' '${{ steps.plan.outputs.pkgver }}'
           printf 'pkgrel=%s\n' '${{ steps.plan.outputs.pkgrel }}'
-          printf 'fork_tag=%s\n' '${{ steps.plan.outputs.fork_tag }}'
+          printf 'upstream_tag=%s\n' '${{ steps.plan.outputs.upstream_tag }}'
           printf 'reason=%s\n' '${{ steps.plan.outputs.reason }}'
 
       - name: Update package metadata
@@ -59,7 +59,7 @@ jobs:
             ./scripts/update-aur-metadata.sh \
               "${{ steps.plan.outputs.pkgver }}" \
               "${{ steps.plan.outputs.pkgrel }}" \
-              "${{ steps.plan.outputs.fork_tag }}" &&
+              "${{ steps.plan.outputs.upstream_tag }}" &&
             ./scripts/validate-repo.sh
           '
 

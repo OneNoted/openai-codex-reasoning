@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-pkgver=${1:?usage: update-aur-metadata.sh <pkgver> <pkgrel> <fork_tag>}
-pkgrel=${2:?usage: update-aur-metadata.sh <pkgver> <pkgrel> <fork_tag>}
-fork_tag=${3:?usage: update-aur-metadata.sh <pkgver> <pkgrel> <fork_tag>}
+pkgver=${1:?usage: update-aur-metadata.sh <pkgver> <pkgrel> <upstream_tag>}
+pkgrel=${2:?usage: update-aur-metadata.sh <pkgver> <pkgrel> <upstream_tag>}
+upstream_tag=${3:?usage: update-aur-metadata.sh <pkgver> <pkgrel> <upstream_tag>}
 
-perl -0pi -e "s/^pkgver=.*/pkgver=${pkgver}/m; s/^pkgrel=.*/pkgrel=${pkgrel}/m; s/^_fork_tag='[^']*'/_fork_tag='${fork_tag}'/m" PKGBUILD
+perl -0pi -e "s/^pkgver=.*/pkgver=${pkgver}/m; s/^pkgrel=.*/pkgrel=${pkgrel}/m; s/^_upstream_tag=\"[^\"]*\"/_upstream_tag=\"rust-v\\\${pkgver}\"/m" PKGBUILD
 
 print_srcinfo() {
   if [[ ${EUID} -ne 0 ]]; then
@@ -29,4 +29,4 @@ print_srcinfo() {
 
 print_srcinfo > .SRCINFO
 
-printf 'Updated PKGBUILD and .SRCINFO for %s-%s (%s)\n' "$pkgver" "$pkgrel" "$fork_tag"
+printf 'Updated PKGBUILD and .SRCINFO for %s-%s (%s)\n' "$pkgver" "$pkgrel" "$upstream_tag"

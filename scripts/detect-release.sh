@@ -3,47 +3,48 @@ set -euo pipefail
 
 current_pkgver=$(awk -F= '/^pkgver=/{print $2; exit}' PKGBUILD)
 current_pkgrel=$(awk -F= '/^pkgrel=/{print $2; exit}' PKGBUILD)
-current_fork_tag=$(awk -F"'" '/^_fork_tag=/{print $2; exit}' PKGBUILD)
+current_upstream_tag="rust-v${current_pkgver}"
 
 force_release=${FORCE_RELEASE:-false}
-fork_tag_override=${FORK_TAG_OVERRIDE:-}
+upstream_tag_override=${UPSTREAM_TAG_OVERRIDE:-}
 pkgrel_override=${PKGREL_OVERRIDE:-}
 
-latest_fork_tag() {
-  git ls-remote --refs --tags https://github.com/OneNoted/codex.git 'aur-v*' |
+latest_upstream_tag() {
+  git ls-remote --refs --tags https://github.com/openai/codex.git 'rust-v*' |
     awk '{sub("refs/tags/","",$2); print $2}' |
+    grep -E '^rust-v[0-9]+\.[0-9]+\.[0-9]+$' |
     sort -V |
     tail -n 1
 }
 
-if [[ -n "$fork_tag_override" ]]; then
-  fork_tag=$fork_tag_override
+if [[ -n "$upstream_tag_override" ]]; then
+  upstream_tag=$upstream_tag_override
 else
-  fork_tag=$(latest_fork_tag)
+  upstream_tag=$(latest_upstream_tag)
 fi
 
-if [[ -z "$fork_tag" ]]; then
-  echo "failed to determine fork tag" >&2
+if [[ -z "$upstream_tag" ]]; then
+  echo "failed to determine upstream tag" >&2
   exit 1
 fi
 
-if [[ ! "$fork_tag" =~ ^aur-v([0-9]+\.[0-9]+\.[0-9]+)-reasoning\.([0-9]+)$ ]]; then
-  echo "unexpected fork tag format: $fork_tag" >&2
+if [[ ! "$upstream_tag" =~ ^rust-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+  echo "unexpected upstream tag format: $upstream_tag" >&2
   exit 1
 fi
 
 pkgver=${BASH_REMATCH[1]}
 should_release=false
-reason="already at desired fork tag"
+reason="already at desired upstream tag"
 
-if [[ "$fork_tag" != "$current_fork_tag" ]]; then
+if [[ "$upstream_tag" != "$current_upstream_tag" ]]; then
   should_release=true
   if [[ "$pkgver" == "$current_pkgver" ]]; then
     pkgrel=${pkgrel_override:-$((10#$current_pkgrel + 1))}
-    reason="fork tag changed within same upstream release"
+    reason="upstream tag changed within same package version"
   else
     pkgrel=${pkgrel_override:-1}
-    reason="fork tag moved to a new upstream release"
+    reason="new upstream release"
   fi
 elif [[ -n "$pkgrel_override" && "$pkgrel_override" != "$current_pkgrel" ]]; then
   should_release=true
@@ -60,7 +61,7 @@ fi
 cat <<EOF
 pkgver=$pkgver
 pkgrel=$pkgrel
-fork_tag=$fork_tag
+upstream_tag=$upstream_tag
 should_release=$should_release
 reason=$reason
 EOF

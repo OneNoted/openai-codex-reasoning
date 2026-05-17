@@ -1,7 +1,7 @@
 # openai-codex-reasoning
 
-Source AUR packaging repo for the OneNoted Codex fork that shows inline
-reasoning traces in the TUI.
+Source AUR packaging repo for OpenAI Codex with raw reasoning traces enabled
+by default.
 
 ## Package contract
 
@@ -13,25 +13,27 @@ reasoning traces in the TUI.
 
 ## Source strategy
 
-This package is pinned to a fixed fork tag instead of tracking a branch:
+This package is pinned to a fixed upstream release tag instead of tracking a
+branch:
 
-- upstream base: `rust-v0.124.0`
-- fork tag: `aur-v0.124.0-reasoning.1`
+- upstream source: `openai/codex`
+- upstream tag format: `rust-v<version>`
+- downstream patch: `default-raw-reasoning.patch`
 
-The fork tag is expected to point at the rebased reasoning-trace change on top
-of the upstream release tag.
+The downstream patch flips the default for `show_raw_agent_reasoning` to
+`true`. If upstream changes that config path, the patch should fail during
+package preparation rather than silently drifting.
 
 ## Release flow
 
 - `validate.yml` checks packaging metadata on push and pull requests
-- `release.yml` polls the fork for the latest `aur-v*-reasoning.*` tag
-- when the fork tag changes:
+- `release.yml` polls upstream for the latest stable `rust-v*` tag
+- when the upstream tag changes:
   `PKGBUILD` and `.SRCINFO` are updated,
   the packaging repo is committed on `main`,
   and the flat AUR snapshot is pushed to `master`
 
-The workflow assumes the fork repo already contains the rebased reasoning
-change and that the only packaging input is the published fork tag.
+The workflow applies the package-owned downstream patch during `prepare()`.
 
 ## Validation
 
@@ -40,8 +42,8 @@ change and that the only packaging input is the published fork tag.
 makepkg --printsrcinfo > .SRCINFO
 ```
 
-`makepkg --verifysource` will only succeed after the fork tag has been pushed to
-GitHub.
+`makepkg --verifysource` verifies the upstream tag source and the local
+downstream patch.
 
 ## Maintainer
 
