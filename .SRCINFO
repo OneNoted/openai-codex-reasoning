@@ -1,7 +1,7 @@
 pkgbase = openai-codex-reasoning
 	pkgdesc = OpenAI Codex CLI with raw reasoning traces enabled by default
 	pkgver = 0.130.0
-	pkgrel = 2
+	pkgrel = 3
 	url = https://github.com/openai/codex
 	arch = x86_64
 	arch = aarch64
