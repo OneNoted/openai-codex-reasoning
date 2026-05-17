@@ -18,6 +18,7 @@ branch:
 
 - upstream source: `openai/codex`
 - upstream tag format: `rust-v<version>`
+- upstream commit: resolved from the release tag and pinned in `PKGBUILD`
 - downstream patch: `default-raw-reasoning.patch`
 
 The downstream patch flips the default for `show_raw_agent_reasoning` to

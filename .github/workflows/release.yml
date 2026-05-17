@@ -30,7 +30,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: main
           fetch-depth: 0
@@ -49,6 +49,7 @@ jobs:
           printf 'pkgver=%s\n' '${{ steps.plan.outputs.pkgver }}'
           printf 'pkgrel=%s\n' '${{ steps.plan.outputs.pkgrel }}'
           printf 'upstream_tag=%s\n' '${{ steps.plan.outputs.upstream_tag }}'
+          printf 'upstream_commit=%s\n' '${{ steps.plan.outputs.upstream_commit }}'
           printf 'reason=%s\n' '${{ steps.plan.outputs.reason }}'
 
       - name: Update package metadata
@@ -59,7 +60,8 @@ jobs:
             ./scripts/update-aur-metadata.sh \
               "${{ steps.plan.outputs.pkgver }}" \
               "${{ steps.plan.outputs.pkgrel }}" \
-              "${{ steps.plan.outputs.upstream_tag }}" &&
+              "${{ steps.plan.outputs.upstream_tag }}" \
+              "${{ steps.plan.outputs.upstream_commit }}" &&
             ./scripts/validate-repo.sh
           '
 
@@ -86,7 +88,7 @@ jobs:
 
       - name: Load AUR SSH key
         if: steps.plan.outputs.should_release == 'true'
-        uses: webfactory/ssh-agent@v0.10.0
+        uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         with:
           ssh-private-key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
 
